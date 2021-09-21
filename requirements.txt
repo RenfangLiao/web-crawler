@@ -4,7 +4,6 @@ Automat==20.2.0
 autopep8==1.5.7
 backcall==0.2.0
 billiard==3.6.4.0
-celery==5.1.2
 cffi==1.14.6
 click==7.1.2
 click-didyoumean==0.0.3
