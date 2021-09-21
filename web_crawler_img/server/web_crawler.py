@@ -1,29 +1,30 @@
-
 from flask import Flask, request
-from celery import Celery
-import os
+from flask import request
+from .job_processing import create_job, check_job_status, get_job_result
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'top-secret!'
 
-# Celery configuration
-app.config['CELERY_BROKER_URL'] = os.environ.get("CELERY_BROKER_URL", 'amqp://myuser:mypassword@localhost:5672/myvhost')
-app.config['CELERY_RESULT_BACKEND'] = os.environ.get('CELERY_RESULT_BACKEND', 'amqp://myuser:mypassword@localhost:5672/myvhost')
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
 
-# Initialize Celery
-def make_celery(app):
-    celery = Celery(
-        app.name,
-        backend=app.config['CELERY_RESULT_BACKEND'],
-        broker=app.config['CELERY_BROKER_URL']
-    )
-    celery.conf.update(app.config)
-    celery.conf.accept_content = ["json","pickle","yaml"]
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
+@app.route("/jobs", methods=['POST'])
+def post_job():
+    request_json = request.get_json(force=True, silent=True, cache=True)
+    if request_json is None:
+        return ("", 400)
+    response_json = request_json
+    response_json['job_id'] = create_job(**request_json)
+    return (response_json, 200)
 
-    celery.Task = ContextTask
-    return celery
+@app.route("/jobs/<job_id>/status", methods = ['GET'])
+def check_status(job_id):
+    response_json = check_job_status(job_id)
+    return (response_json, 200)
 
-celery = make_celery(app)
+@app.route("/jobs/<job_id>/result", methods = ['GET'])
+def get_result(job_id):
+    response_json = get_job_result(job_id)
+    return (response_json, 200)
+
+application = app
