@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8.12-bullseye
 
 RUN apt-get update && apt-get install redis --yes
 WORKDIR /app
