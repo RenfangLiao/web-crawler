@@ -13,6 +13,10 @@ def post_job():
     request_json = request.get_json(force=True, silent=True, cache=True)
     if request_json is None:
         return ("", 400)
+    if 'urls' not in request_json.keys():
+        return ("", 400)
+    if 'workers' not in request_json.keys():
+        request_json['workers'] = 1
     response_json = request_json
     response_json['job_id'] = create_job(**request_json)
     return (response_json, 200)

@@ -6,6 +6,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from urllib.parse import urlparse
+from pathlib import Path
 from multiprocessing import Process
 from flask import abort
 def create_job_id():
@@ -128,6 +129,9 @@ def get_job_result(job_id):
         url = url.decode()
         key = 'result_'+url
         result=redis_client.lrange(key, 0, -1)
+        # remove query part and remove duplicates
         result = list(dict.fromkeys([img_url.decode().split('?')[0] for img_url in result]))
+        # check extension only keep the 
+        result = [img_url for img_url in result if Path(urlparse(img_url).path).suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif']]
         result_json[url] = result
     return result_json
