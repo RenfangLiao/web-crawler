@@ -1,4 +1,3 @@
-from celery.app.utils import Settings
 import uuid
 import redis
 import scrapy
