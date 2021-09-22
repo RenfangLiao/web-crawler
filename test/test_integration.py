@@ -4,6 +4,11 @@ import requests
 import subprocess
 import time
 import os
+# note
+# you need to run FLASK_APP='web_crawler:application'
+# then go to web_crawler_img/server dir and run 'FLASK RUN'
+# then 'redis-server'
+# then go to the repo's root dir run 'python -m unittest'
 # helper
 def free_up_redis():
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
